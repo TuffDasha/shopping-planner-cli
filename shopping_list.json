@@ -1,0 +1,10 @@
+[
+    {
+        "id": 1,
+        "name": "яйце",
+        "quantity": 2.0,
+        "price": 30.0,
+        "category": "продукти",
+        "is_bought": false
+    }
+]
