@@ -1,10 +1,26 @@
 [
     {
         "id": 1,
-        "name": "яйце",
-        "quantity": 2.0,
-        "price": 30.0,
-        "category": "продукти",
+        "name": "Red Bull",
+        "quantity": 3.0,
+        "price": 65.0,
+        "category": "Продукти",
+        "is_bought": true
+    },
+    {
+        "id": 3,
+        "name": "Playstation 5 Slim",
+        "quantity": 1.0,
+        "price": 34600.0,
+        "category": "Техніка",
         "is_bought": false
+    },
+    {
+        "id": 4,
+        "name": "Барні",
+        "quantity": 4.0,
+        "price": 17.0,
+        "category": "Продукти",
+        "is_bought": true
     }
 ]

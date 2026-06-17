@@ -3,8 +3,11 @@ import os
 
 DATA_FILE = "shopping_list.json"
 
+
+# РОЗДІЛ 1: ЗАВАНТАЖЕННЯ ТА ЗБЕРЕЖЕННЯ ДАНИХ (JSON)
+
 def load_data():
-    """Завантажує дані з JSON файлу. Якщо файлу немає, повертає порожній список."""
+    """Завантажує дані з JSON файлу."""
     if not os.path.exists(DATA_FILE):
         return []
     try:
@@ -22,11 +25,26 @@ def save_data(data):
     except IOError:
         print("Помилка збереження даних у файл!")
 
+
+# РОЗДІЛ 2: ДОПОМІЖНІ ФУНКЦІЇ СИСТЕМИ
+
 def get_next_id(data):
     """Генерує унікальний ID для нового товару."""
     if not data:
         return 1
     return max(item['id'] for item in data) + 1
+
+def display_table(items_to_show):
+    """Допоміжна функція для красивого виведення таблиці товарів."""
+    print(f"{'ID':<4} | {'Назва':<20} | {'Кількість':<10} | {'Ціна':<10} | {'Категорія':<15} | {'Статус':<10}")
+    print("-" * 75)
+    for item in items_to_show:
+        status = "Куплено" if item["is_bought"] else "Не куплено"
+        print(f"{item['id']:<4} | {item['name']:<20} | {item['quantity']:<10} | {item['price']:<10.2f} | {item['category']:<15} | {status:<10}")
+    print("-" * 75)
+
+
+# РОЗДІЛ 3: ОСНОВНІ ОПЕРАЦІЇ З ТОВАРАМИ (БІЗНЕС-ЛОГІКА)
 
 def add_item(data):
     print("\n--- Додавання нового товару ---")
@@ -35,7 +53,6 @@ def add_item(data):
         print("Назва не може бути порожньою!")
         name = input("Введіть назву товару: ").strip()
 
-    # Обробка некоректного вводу для кількості
     while True:
         try:
             quantity = float(input("Введіть кількість (наприклад, 2 або 1.5): "))
@@ -46,7 +63,6 @@ def add_item(data):
         except ValueError:
             print("Некоректний ввід! Будь ласка, введіть число.")
 
-    # Обробка некоректного вводу для ціни
     while True:
         try:
             price = float(input("Введіть орієнтовну ціну за одиницю (грн): "))
@@ -74,29 +90,10 @@ def add_item(data):
     save_data(data)
     print(f"Товар '{name}' успішно додано до списку!")
 
-def view_items(data):
-    print("\n--- Поточний список покупок ---")
-    if not data:
-        print("Ваш список покупок порожній.")
-        return
-
-    total_sum = 0
-    print(f"{'ID':<4} | {'Назва':<20} | {'Кількість':<10} | {'Ціна':<10} | {'Категорія':<15} | {'Статус':<10}")
-    print("-" * 75)
-    
-    for item in data:
-        status = "Куплено" if item["is_bought"] else "Не куплено"
-        print(f"{item['id']:<4} | {item['name']:<20} | {item['quantity']:<10} | {item['price']:<10.2f} | {item['category']:<15} | {status:<10}")
-        if not item["is_bought"]:
-            total_sum += item["quantity"] * item["price"]
-            
-    print("-" * 75)
-    print(f"Загальна сума до сплати (за некуплені товари): {total_sum:.2f} грн")
-
 def mark_as_bought(data):
     print("\n--- Відмітити товар як куплений ---")
     if not data:
-        print("Список порожній. Немає чого відмічати.")
+        print("Список порожній.")
         return
 
     while True:
@@ -118,37 +115,91 @@ def mark_as_bought(data):
             
     print(f"Товар з ID {item_id} не знайдено.")
 
+
+# РОЗДІЛ 4: ФІЛЬТРАЦІЯ ТА МОДУЛЬ ВИДАЛЕННЯ ДАНИХ
+
+def view_items(data):
+    print("\n--- Список покупок ---")
+    if not data:
+        print("Ваш список покупок порожній.")
+        return
+
+    print("1. Показати ВСІ товари")
+    print("2. Показати тільки НЕКУПЛЕНІ")
+    print("3. Фільтрувати за конкретною категорією")
+    sub_choice = input("Оберіть варіант відображення (1-3): ").strip()
+
+    filtered_list = data
+    if sub_choice == "2":
+        filtered_list = [item for item in data if not item["is_bought"]]
+        print("\nВідображаються лише некуплені товари:")
+    elif sub_choice == "3":
+        cat_search = input("Введіть назву категорії для фільтрації: ").strip()
+        filtered_list = [item for item in data if item["category"].lower() == cat_search.lower()]
+        print(f"\nТовари у категорії '{cat_search}':")
+
+    if not filtered_list:
+        print("Товарів за вказаними критеріями не знайдено.")
+        return
+
+    display_table(filtered_list)
+    
+    total_all = sum(item["quantity"] * item["price"] for item in data)
+    total_remaining = sum(item["quantity"] * item["price"] for item in data if not item["is_bought"])
+    print(f"Загальна вартість усього списку: {total_all:.2f} грн")
+    print(f"Залишилося сплатити (за некуплені товари): {total_remaining:.2f} грн")
+
 def delete_item(data):
-    print("\n--- Видалення товару зі списку ---")
+    print("\n--- Видалення товарів / Очищення ---")
     if not data:
         print("Список порожній.")
         return
 
-    while True:
-        try:
-            item_id = int(input("Введіть ID товару, який потрібно видалити: "))
-            break
-        except ValueError:
-            print("Некоректний ввід! ID має бути цілим числом.")
+    print("1. Видалити один товар за ID")
+    print("2. Очистити лише КУПЛЕНІ товари")
+    print("3. Повністю очистити список покупок")
+    sub_choice = input("Оберіть дію (1-3): ").strip()
 
-    for item in data:
-        if item["id"] == item_id:
-            data.remove(item)
+    if sub_choice == "1":
+        while True:
+            try:
+                item_id = int(input("Введіть ID товару, який потрібно видалити: "))
+                break
+            except ValueError:
+                print("Некоректний ввід! ID має бути цілим числом.")
+        for item in data:
+            if item["id"] == item_id:
+                data.remove(item)
+                save_data(data)
+                print(f"Товар '{item['name']}' видалено зі списку.")
+                return
+        print(f"Товар з ID {item_id} не знайдено.")
+
+    elif sub_choice == "2":
+        start_count = len(data)
+        data[:] = [item for item in data if not item["is_bought"]]
+        save_data(data)
+        print(f"Очищено куплених товарів: {start_count - len(data)} шт.")
+
+    elif sub_choice == "3":
+        confirm = input("Ви впевнені, що хочете повністю очистити список? (y/n): ").strip().lower()
+        if confirm == 'y' or confirm == 'так':
+            data.clear()
             save_data(data)
-            print(f"Товар '{item['name']}' видалено зі списку.")
-            return
+            print("Список покупок повністю очищено!")
 
-    print(f"Товар з ID {item_id} не знайдено.")
+
+# РОЗДІЛ 5: ГОЛОВНИЙ КЕРОВАНИЙ ЦИКЛ ПРОГРАМИ (MENU)
 
 def main():
     shopping_list = load_data()
     
     while True:
         print("\n===== ПЛАНУВАЛЬНИК ПОКУПОК =====")
-        print("1. Переглянути список покупок")
+        print("1. Переглянути список покупок / Статистику")
         print("2. Додати новий товар")
         print("3. Відмітити товар як куплений")
-        print("4. Видалити товар зі списку")
+        print("4. Видалення товарів / Очищення списку")
         print("5. Вийти з програми")
         
         choice = input("Оберіть дію (1-5): ").strip()
