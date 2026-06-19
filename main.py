@@ -101,7 +101,7 @@ def mark_as_bought(data):
             item_id = int(input("Введіть ID товару, який ви купили: "))
             break
         except ValueError:
-            print("Некоректний ввід! ID має бути цілим числом.")
+            print("Некоректний ввід! ID має быть цілим числом.")
 
     for item in data:
         if item["id"] == item_id:
@@ -116,7 +116,7 @@ def mark_as_bought(data):
     print(f"Товар з ID {item_id} не знайдено.")
 
 
-# РОЗДІЛ 4: ФІЛЬТРАЦІЯ ТА МОДУЛЬ ВИДАЛЕННЯ ДАНИХ
+# РОЗДІЛ 4: ФІЛЬТРАЦІЯ, АКТИВНИЙ СПИСОК, АРХІВ ТА ВИДАЛЕННЯ
 
 def view_items(data):
     print("\n--- Список покупок ---")
@@ -125,15 +125,19 @@ def view_items(data):
         return
 
     print("1. Показати ВСІ товари")
-    print("2. Показати тільки НЕКУПЛЕНІ")
-    print("3. Фільтрувати за конкретною категорією")
-    sub_choice = input("Оберіть варіант відображення (1-3): ").strip()
+    print("2. Перегляд АКТИВНОГО списку (тільки некуплені)")
+    print("3. Перегляд АРХІВУ (вже куплені товари)")
+    print("4. Фільтрувати за конкретною категорією")
+    sub_choice = input("Оберіть варіант відображення (1-4): ").strip()
 
     filtered_list = data
     if sub_choice == "2":
         filtered_list = [item for item in data if not item["is_bought"]]
-        print("\nВідображаються лише некуплені товари:")
+        print("\n--- АКТИВНИЙ СПИСОК ПОКУПОК ---")
     elif sub_choice == "3":
+        filtered_list = [item for item in data if item["is_bought"]]
+        print("\n--- АРХІВ КУПЛЕНИХ ТОВАРІВ ---")
+    elif sub_choice == "4":
         cat_search = input("Введіть назву категорії для фільтрації: ").strip()
         filtered_list = [item for item in data if item["category"].lower() == cat_search.lower()]
         print(f"\nТовари у категорії '{cat_search}':")
