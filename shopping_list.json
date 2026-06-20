@@ -1,14 +1,6 @@
 [
     {
         "id": 1,
-        "name": "Red Bull",
-        "quantity": 3.0,
-        "price": 65.0,
-        "category": "Продукти",
-        "is_bought": true
-    },
-    {
-        "id": 3,
         "name": "Playstation 5 Slim",
         "quantity": 1.0,
         "price": 34600.0,
@@ -16,10 +8,42 @@
         "is_bought": false
     },
     {
-        "id": 4,
+        "id": 2,
         "name": "Барні",
+        "quantity": 1.0,
+        "price": 16.0,
+        "category": "Продукти",
+        "is_bought": true
+    },
+    {
+        "id": 3,
+        "name": "Assassin`s Creed III",
+        "quantity": 1.0,
+        "price": 610.0,
+        "category": "Цифрові покупки",
+        "is_bought": false
+    },
+    {
+        "id": 4,
+        "name": "GTA V",
+        "quantity": 1.0,
+        "price": 1349.0,
+        "category": "Цифрові покупки",
+        "is_bought": false
+    },
+    {
+        "id": 5,
+        "name": "Сосиски Альпійські",
+        "quantity": 1.0,
+        "price": 132.0,
+        "category": "Продукти",
+        "is_bought": true
+    },
+    {
+        "id": 6,
+        "name": "Рогалики",
         "quantity": 4.0,
-        "price": 17.0,
+        "price": 23.0,
         "category": "Продукти",
         "is_bought": true
     }

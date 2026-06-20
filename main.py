@@ -1,226 +1,138 @@
 import json
 import os
+import tkinter as tk
+from tkinter import ttk, messagebox
 
 DATA_FILE = "shopping_list.json"
 
-
-# РОЗДІЛ 1: ЗАВАНТАЖЕННЯ ТА ЗБЕРЕЖЕННЯ ДАНИХ (JSON)
-
+# СЬОГОДНІ: Базові заглушки та ініціалізація структури даних
 def load_data():
-    """Завантажує дані з JSON файлу."""
-    if not os.path.exists(DATA_FILE):
-        return []
-    try:
-        with open(DATA_FILE, 'r', encoding='utf-8') as file:
-            return json.load(file)
-    except (json.JSONDecodeError, IOError):
-        print("Помилка зчитування файлу даних. Створено новий список.")
-        return []
+    if not os.path.exists(DATA_FILE): return []
+    return []
 
 def save_data(data):
-    """Зберігає поточний список покупок у JSON файл."""
-    try:
-        with open(DATA_FILE, 'w', encoding='utf-8') as file:
-            json.dump(data, file, ensure_ascii=False, indent=4)
-    except IOError:
-        print("Помилка збереження даних у файл!")
+    pass
 
+def get_total_info(data):
+    return 0, 0
 
-# РОЗДІЛ 2: ДОПОМІЖНІ ФУНКЦІЇ СИСТЕМИ
+def add_item(data, **kwargs):
+    return {"name": kwargs.get("name", "Тест")}
 
-def get_next_id(data):
-    """Генерує унікальний ID для нового товару."""
-    if not data:
-        return 1
-    return max(item['id'] for item in data) + 1
+def mark_as_bought(data, item_id=None):
+    return None
 
-def display_table(items_to_show):
-    """Допоміжна функція для красивого виведення таблиці товарів."""
-    print(f"{'ID':<4} | {'Назва':<20} | {'Кількість':<10} | {'Ціна':<10} | {'Категорія':<15} | {'Статус':<10}")
-    print("-" * 75)
-    for item in items_to_show:
-        status = "Куплено" if item["is_bought"] else "Не куплено"
-        print(f"{item['id']:<4} | {item['name']:<20} | {item['quantity']:<10} | {item['price']:<10.2f} | {item['category']:<15} | {status:<10}")
-    print("-" * 75)
+def view_items(data, **kwargs):
+    return [], 0, 0
 
+def delete_item(data, **kwargs):
+    return False
 
-# РОЗДІЛ 3: ОСНОВНІ ОПЕРАЦІЇ З ТОВАРАМИ (БІЗНЕС-ЛОГІКА)
+# СЬОГОДНІ: Повний рендеринг графічної оболонки (GUI)
+def create_gui():
+    root = tk.Tk()
+    root.title("Планувальник покупок")
+    root.geometry("1100x650")
+    root.minsize(980, 550)
 
-def add_item(data):
-    print("\n--- Додавання нового товару ---")
-    name = input("Введіть назву товару: ").strip()
-    while not name:
-        print("Назва не може бути порожньою!")
-        name = input("Введіть назву товару: ").strip()
+    style = ttk.Style(root)
+    style.theme_use("clam")
 
-    while True:
-        try:
-            quantity = float(input("Введіть кількість (наприклад, 2 або 1.5): "))
-            if quantity <= 0:
-                print("Кількість повинна бути більшою за 0!")
-                continue
-            break
-        except ValueError:
-            print("Некоректний ввід! Будь ласка, введіть число.")
+    def refresh_data():
+        tree.delete(*tree.get_children())
+        stats_var.set("Всього товарів: 0 | Загалом: 0.00 грн | До оплати: 0.00 грн")
+        category_combo["values"] = []
 
-    while True:
-        try:
-            price = float(input("Введіть орієнтовну ціну за одиницю (грн): "))
-            if price <= 0:
-                print("Ціна повинна бути більшою за 0!")
-                continue
-            break
-        except ValueError:
-            print("Некоректний ввід! Будь ласка, введіть число.")
+    def add_item_from_form():
+        messagebox.showinfo("Етап розробки", "Функціонал додавання інтегрується...")
 
-    category = input("Введіть категорію (наприклад, Продукти, Техніка): ").strip()
-    if not category:
-        category = "Інше"
+    def mark_selected():
+        messagebox.showinfo("Етап розробки", "Обробник подій буде підключено завтра.")
 
-    new_item = {
-        "id": get_next_id(data),
-        "name": name,
-        "quantity": quantity,
-        "price": price,
-        "category": category,
-        "is_bought": False
-    }
-    
-    data.append(new_item)
-    save_data(data)
-    print(f"Товар '{name}' успішно додано до списку!")
+    def delete_selected():
+        pass
 
-def mark_as_bought(data):
-    print("\n--- Відмітити товар як куплений ---")
-    if not data:
-        print("Список порожній.")
-        return
+    def clear_bought():
+        pass
 
-    while True:
-        try:
-            item_id = int(input("Введіть ID товару, який ви купили: "))
-            break
-        except ValueError:
-            print("Некоректний ввід! ID має быть цілим числом.")
+    def clear_all():
+        pass
 
-    for item in data:
-        if item["id"] == item_id:
-            if item["is_bought"]:
-                print(f"Товар '{item['name']}' вже був позначений як куплений.")
-            else:
-                item["is_bought"] = True
-                save_data(data)
-                print(f"Товар '{item['name']}' успішно позначено як куплений!")
-            return
-            
-    print(f"Товар з ID {item_id} не знайдено.")
+    def apply_filter():
+        pass
 
+    # Верхня рама з статистикою
+    top_frame = ttk.Frame(root, padding=10)
+    top_frame.pack(fill=tk.X)
+    stats_var = tk.StringVar(value="Завантаження інтерфейсу...")
+    ttk.Label(top_frame, textvariable=stats_var, font=("Segoe UI", 10, "bold")).pack(anchor=tk.W)
 
-# РОЗДІЛ 4: ФІЛЬТРАЦІЯ, АКТИВНИЙ СПИСОК, АРХІВ ТА ВИДАЛЕННЯ
+    # Рама з елементами керування
+    controls_frame = ttk.LabelFrame(root, text="Дії", padding=10)
+    controls_frame.pack(fill=tk.X, padx=10, pady=(0, 10))
 
-def view_items(data):
-    print("\n--- Список покупок ---")
-    if not data:
-        print("Ваш список покупок порожній.")
-        return
+    ttk.Button(controls_frame, text="Показати всі", command=apply_filter).grid(row=0, column=0, padx=5, pady=5)
+    ttk.Button(controls_frame, text="Active", command=apply_filter).grid(row=0, column=1, padx=5, pady=5)
+    ttk.Button(controls_frame, text="Архів", command=apply_filter).grid(row=0, column=2, padx=5, pady=5)
+    ttk.Button(controls_frame, text="Очищення куплених", command=clear_bought).grid(row=0, column=3, padx=5, pady=5)
+    ttk.Button(controls_frame, text="Повне очищення", command=clear_all).grid(row=0, column=4, padx=5, pady=5)
 
-    print("1. Показати ВСІ товари")
-    print("2. Перегляд АКТИВНОГО списку (тільки некуплені)")
-    print("3. Перегляд АРХІВУ (вже куплені товари)")
-    print("4. Фільтрувати за конкретною категорією")
-    sub_choice = input("Оберіть варіант відображення (1-4): ").strip()
+    filter_var = tk.StringVar(value="all")
+    ttk.Label(controls_frame, text="Категорія:").grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
+    category_combo = ttk.Combobox(controls_frame, state="readonly", width=18)
+    category_combo.grid(row=1, column=1, padx=5, pady=5)
+    ttk.Button(controls_frame, text="Фільтрувати", command=apply_filter).grid(row=1, column=2, padx=5, pady=5)
 
-    filtered_list = data
-    if sub_choice == "2":
-        filtered_list = [item for item in data if not item["is_bought"]]
-        print("\n--- АКТИВНИЙ СПИСОК ПОКУПОК ---")
-    elif sub_choice == "3":
-        filtered_list = [item for item in data if item["is_bought"]]
-        print("\n--- АРХІВ КУПЛЕНИХ ТОВАРІВ ---")
-    elif sub_choice == "4":
-        cat_search = input("Введіть назву категорії для фільтрації: ").strip()
-        filtered_list = [item for item in data if item["category"].lower() == cat_search.lower()]
-        print(f"\nТовари у категорії '{cat_search}':")
+    # Рама вводу
+    input_frame = ttk.LabelFrame(root, text="Додати товар", padding=10)
+    input_frame.pack(fill=tk.X, padx=10, pady=(0, 10))
 
-    if not filtered_list:
-        print("Товарів за вказаними критеріями не знайдено.")
-        return
+    ttk.Label(input_frame, text="Назва:").grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
+    name_entry = ttk.Entry(input_frame, width=30)
+    name_entry.grid(row=0, column=1, padx=5, pady=5)
 
-    display_table(filtered_list)
-    
-    total_all = sum(item["quantity"] * item["price"] for item in data)
-    total_remaining = sum(item["quantity"] * item["price"] for item in data if not item["is_bought"])
-    print(f"Загальна вартість усього списку: {total_all:.2f} грн")
-    print(f"Залишилося сплатити (за некуплені товари): {total_remaining:.2f} грн")
+    ttk.Label(input_frame, text="Кількість:").grid(row=0, column=2, sticky=tk.W, padx=5, pady=5)
+    quantity_entry = ttk.Entry(input_frame, width=10)
+    quantity_entry.grid(row=0, column=3, padx=5, pady=5)
 
-def delete_item(data):
-    print("\n--- Видалення товарів / Очищення ---")
-    if not data:
-        print("Список порожній.")
-        return
+    ttk.Label(input_frame, text="Ціна:").grid(row=0, column=4, sticky=tk.W, padx=5, pady=5)
+    price_entry = ttk.Entry(input_frame, width=10)
+    price_entry.grid(row=0, column=5, padx=5, pady=5)
 
-    print("1. Видалити один товар за ID")
-    print("2. Очистити лише КУПЛЕНІ товари")
-    print("3. Повністю очистити список покупок")
-    sub_choice = input("Оберіть дію (1-3): ").strip()
+    ttk.Label(input_frame, text="Категорія:").grid(row=0, column=6, sticky=tk.W, padx=5, pady=5)
+    category_entry = ttk.Entry(input_frame, width=18)
+    category_entry.grid(row=0, column=7, padx=5, pady=5)
 
-    if sub_choice == "1":
-        while True:
-            try:
-                item_id = int(input("Введіть ID товару, який потрібно видалити: "))
-                break
-            except ValueError:
-                print("Некоректний ввід! ID має бути цілим числом.")
-        for item in data:
-            if item["id"] == item_id:
-                data.remove(item)
-                save_data(data)
-                print(f"Товар '{item['name']}' видалено зі списку.")
-                return
-        print(f"Товар з ID {item_id} не знайдено.")
+    ttk.Button(input_frame, text="Додати товар", command=add_item_from_form).grid(row=0, column=8, padx=5, pady=5)
 
-    elif sub_choice == "2":
-        start_count = len(data)
-        data[:] = [item for item in data if not item["is_bought"]]
-        save_data(data)
-        print(f"Очищено куплених товарів: {start_count - len(data)} шт.")
+    # Рама таблиці
+    table_frame = ttk.Frame(root)
+    table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 10))
 
-    elif sub_choice == "3":
-        confirm = input("Ви впевнені, що хочете повністю очистити список? (y/n): ").strip().lower()
-        if confirm == 'y' or confirm == 'так':
-            data.clear()
-            save_data(data)
-            print("Список покупок повністю очищено!")
+    columns = ("id", "name", "quantity", "price", "category", "status")
+    tree = ttk.Treeview(table_frame, columns=columns, show="headings")
+    tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
+    tree.heading("id", text="ID"); tree.heading("name", text="Назва")
+    tree.heading("quantity", text="Кількість"); tree.heading("price", text="Ціна")
+    tree.heading("category", text="Категорія"); tree.heading("status", text="Статус")
 
-# РОЗДІЛ 5: ГОЛОВНИЙ КЕРОВАНИЙ ЦИКЛ ПРОГРАМИ (MENU)
+    tree.column("id", width=50, anchor=tk.CENTER); tree.column("name", width=260)
+    tree.column("quantity", width=90, anchor=tk.CENTER); tree.column("price", width=90, anchor=tk.CENTER)
+    tree.column("category", width=180); tree.column("status", width=120, anchor=tk.CENTER)
 
-def main():
-    shopping_list = load_data()
-    
-    while True:
-        print("\n===== ПЛАНУВАЛЬНИК ПОКУПОК =====")
-        print("1. Переглянути список покупок / Статистику")
-        print("2. Додати новий товар")
-        print("3. Відмітити товар як куплений")
-        print("4. Видалення товарів / Очищення списку")
-        print("5. Вийти з програми")
-        
-        choice = input("Оберіть дію (1-5): ").strip()
-        
-        if choice == "1":
-            view_items(shopping_list)
-        elif choice == "2":
-            add_item(shopping_list)
-        elif choice == "3":
-            mark_as_bought(shopping_list)
-        elif choice == "4":
-            delete_item(shopping_list)
-        elif choice == "5":
-            print("Дякуємо за використання планувальника покупок! До побачення.")
-            break
-        else:
-            print("Некоректний вибір! Будь ласка, введіть число від 1 до 5.")
+    scrollbar = ttk.Scrollbar(table_frame, orient=tk.VERTICAL, command=tree.yview)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+    tree.configure(yscrollcommand=scrollbar.set)
+
+    bottom_frame = ttk.Frame(root, padding=10)
+    bottom_frame.pack(fill=tk.X)
+    ttk.Button(bottom_frame, text="Позначити як куплений", command=mark_selected).pack(side=tk.LEFT, padx=5)
+    ttk.Button(bottom_frame, text="Видалити вибраний", command=delete_selected).pack(side=tk.LEFT, padx=5)
+    ttk.Button(bottom_frame, text="Оновити", command=refresh_data).pack(side=tk.LEFT, padx=5)
+
+    refresh_data()
+    root.mainloop()
 
 if __name__ == "__main__":
-    main()
+    create_gui()
