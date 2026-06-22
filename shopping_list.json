@@ -38,13 +38,5 @@
         "price": 132.0,
         "category": "Продукти",
         "is_bought": true
-    },
-    {
-        "id": 6,
-        "name": "Рогалики",
-        "quantity": 4.0,
-        "price": 23.0,
-        "category": "Продукти",
-        "is_bought": true
     }
 ]
