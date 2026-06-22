@@ -383,18 +383,23 @@ def create_gui():
     def apply_filter():
         mode = filter_var.get()
         shopping_list = load_data()
+        
         if mode == "category":
             category = category_combo.get().strip()
             if not category:
                 messagebox.showwarning("Увага", "Введіть категорію для фільтрації.")
                 return
-            filtered_list, total_all, total_remaining = view_items(shopping_list, filter_mode="category", category=category)
+            filtered_list, _, _ = view_items(shopping_list, filter_mode="category", category=category)
         elif mode == "active":
-            filtered_list, total_all, total_remaining = view_items(shopping_list, filter_mode="active")
+            filtered_list, _, _ = view_items(shopping_list, filter_mode="active")
         elif mode == "archive":
-            filtered_list, total_all, total_remaining = view_items(shopping_list, filter_mode="archive")
+            filtered_list, _, _ = view_items(shopping_list, filter_mode="archive")
         else:
-            filtered_list, total_all, total_remaining = view_items(shopping_list)
+            filtered_list, _, _ = view_items(shopping_list)
+
+        # Рахуємо фінанси СУТО для тих товарів, які пройшли фільтр і будуть показані
+        current_total = sum(item["quantity"] * item["price"] for item in filtered_list)
+        current_remaining = sum(item["quantity"] * item["price"] for item in filtered_list if not item["is_bought"])
 
         tree.delete(*tree.get_children())
         for item in filtered_list:
@@ -411,8 +416,9 @@ def create_gui():
                     status,
                 ),
             )
+        
         stats_var.set(
-            f"Показано: {len(filtered_list)} | Загалом: {total_all:.2f} грн | До оплати: {total_remaining:.2f} грн"
+            f"Показано: {len(filtered_list)} | Загалом: {current_total:.2f} грн | До оплати: {current_remaining:.2f} грн"
         )
 
     # Верхня рама з статистикою
